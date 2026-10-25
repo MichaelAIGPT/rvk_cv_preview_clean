@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РВК Safety: Результаты пайплайна v2.3 (Интерактивный зум колёсиком мыши)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #090d16; color: #f8fafc; margin: 0; padding: 20px; }
+  header { background: #151e2e; padding: 16px 24px; border-radius: 12px; border: 1px solid #26354a; margin-bottom: 24px; }
+  h1 { color: #38bdf8; font-size: 20px; margin-bottom: 6px; }
+  p { color: #94a3b8; font-size: 13px; margin: 0; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 1400px; margin: 0 auto; }
+  .card { background: #151e2e; border: 1px solid #26354a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+  .card-header { padding: 12px 18px; background: #0f172a; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #26354a; }
+  .card-title { font-size: 14px; font-weight: 700; color: #38bdf8; }
+  .card-meta { font-size: 12px; color: #94a3b8; }
+  .img-wrap { width: 100%; background: black; cursor: pointer; position: relative; }
+  .img-wrap:hover::after { content: "🔍 Нажмите для детального просмотра и зума"; position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.85); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; }
+  .img-wrap img { width: 100%; display: block; }
+  .card-footer { padding: 10px 18px; font-size: 12px; display: flex; gap: 10px; flex-wrap: wrap; background: #151e2e; }
+  .badge { padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+  .badge-people { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+  .badge-clean { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+  .badge-violation { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+  .badge-fps { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+  /* Modal Lightbox with Pan & Zoom */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.94);
+    z-index: 1000;
+    flex-direction: column;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px;
+    background: #0f172a;
+    border-bottom: 1px solid #26354a;
+    color: white;
+    z-index: 1010;
+  }
+  .modal-controls { display: flex; gap: 10px; align-items: center; }
+  .modal-btn { background: #334155; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .modal-btn:hover { background: #475569; }
+  .modal-close { background: #ef4444; }
+  .modal-close:hover { background: #dc2626; }
+  .zoom-hint { font-size: 12px; color: #94a3b8; margin-left: 10px; }
+
+  .viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #040711;
+  }
+  .viewport:active { cursor: grabbing; }
+  .modal-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    transform-origin: center center;
+    transition: transform 0.05s ease-out;
+    user-select: none;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>⚡ РВК Safety: Галерея результатов пайплайна v2.3</h1>
+    <p>Крупные жирные надписи <strong>Arial Bold 22px</strong> • Отфильтрован стенд • <strong>Зум колёсиком мыши + перетаскивание</strong></p>
+  </header>
+
+  <div class="grid">
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #1: 2026__08__10__0eed82ab-c5ba-4a9e-a9b8-e78adf6d73da.jpg</span>
+        <span class="card-meta">Инференс: 2296.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(0)">
+        <img src="batch_results/res_00_2026__08__10__0eed82ab-c5ba-4a9e-a9b8-e78adf6d73da.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 2296.1 мс (~0 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #2: 2026__08__20__05eb40f6-1bc8-4e68-b805-bc2efe35df3e.jpg</span>
+        <span class="card-meta">Инференс: 27.5 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(1)">
+        <img src="batch_results/res_01_2026__08__20__05eb40f6-1bc8-4e68-b805-bc2efe35df3e.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 27.5 мс (~36 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #3: 2026__08__20__aac4a886-dad4-4afb-937d-934160461215.jpg</span>
+        <span class="card-meta">Инференс: 16.6 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(2)">
+        <img src="batch_results/res_02_2026__08__20__aac4a886-dad4-4afb-937d-934160461215.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 16.6 мс (~60 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #4: 2026__08__21__5473863a-f3c7-4452-8895-5a021f4f305f.jpg</span>
+        <span class="card-meta">Инференс: 52.8 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(3)">
+        <img src="batch_results/res_03_2026__08__21__5473863a-f3c7-4452-8895-5a021f4f305f.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 52.8 мс (~19 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #5: 2026__08__21__d1310b5c-10f1-412d-96e0-3e5014f1eed6.jpg</span>
+        <span class="card-meta">Инференс: 55.3 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(4)">
+        <img src="batch_results/res_04_2026__08__21__d1310b5c-10f1-412d-96e0-3e5014f1eed6.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 55.3 мс (~18 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #6: 2026__08__22__cafb3704-f64f-4bf3-90e6-78974ca480a3.jpg</span>
+        <span class="card-meta">Инференс: 50.3 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(5)">
+        <img src="batch_results/res_05_2026__08__22__cafb3704-f64f-4bf3-90e6-78974ca480a3.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 50.3 мс (~20 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #7: 2026__08__23__96135095-ec68-42d7-b964-44be43538d4f.jpg</span>
+        <span class="card-meta">Инференс: 20.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(6)">
+        <img src="batch_results/res_06_2026__08__23__96135095-ec68-42d7-b964-44be43538d4f.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 20.1 мс (~50 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #8: 2026__08__24__3e274b23-387a-4405-a81d-0df0877df8df.jpg</span>
+        <span class="card-meta">Инференс: 19.8 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(7)">
+        <img src="batch_results/res_07_2026__08__24__3e274b23-387a-4405-a81d-0df0877df8df.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 19.8 мс (~50 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #9: 2026__08__24__ddd95ba8-4653-4297-adfc-de6888999d98.jpg</span>
+        <span class="card-meta">Инференс: 22.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(8)">
+        <img src="batch_results/res_08_2026__08__24__ddd95ba8-4653-4297-adfc-de6888999d98.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 22.1 мс (~45 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #10: 2026__08__25__865e1550-78fe-41f0-8169-5026fc0ed4fa.jpg</span>
+        <span class="card-meta">Инференс: 20.9 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(9)">
+        <img src="batch_results/res_09_2026__08__25__865e1550-78fe-41f0-8169-5026fc0ed4fa.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 20.9 мс (~48 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #11: 2026__08__26__2e19a330-abff-42c9-9229-4433f14a2780.jpg</span>
+        <span class="card-meta">Инференс: 31.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(10)">
+        <img src="batch_results/res_10_2026__08__26__2e19a330-abff-42c9-9229-4433f14a2780.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 31.1 мс (~32 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #12: 2026__08__26__b3a750d2-136e-41a9-a4aa-4923cbd0dd1f.jpg</span>
+        <span class="card-meta">Инференс: 70.4 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(11)">
+        <img src="batch_results/res_11_2026__08__26__b3a750d2-136e-41a9-a4aa-4923cbd0dd1f.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 2</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 2</span>
+        <span class="badge badge-fps">⚡ 70.4 мс (~14 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #13: 2026__08__27__3d15c2af-2e5f-4ff8-a76d-866ceb6069ff.jpg</span>
+        <span class="card-meta">Инференс: 19.7 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(12)">
+        <img src="batch_results/res_12_2026__08__27__3d15c2af-2e5f-4ff8-a76d-866ceb6069ff.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 0</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 0</span>
+        <span class="badge badge-fps">⚡ 19.7 мс (~51 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #14: 2026__08__27__e88f8ab3-f1d7-45b8-a344-ce11cb7f07ef.jpg</span>
+        <span class="card-meta">Инференс: 47.7 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(13)">
+        <img src="batch_results/res_13_2026__08__27__e88f8ab3-f1d7-45b8-a344-ce11cb7f07ef.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 47.7 мс (~21 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #15: 2026__08__28__828870b2-a0df-4c19-8002-e7f1c496b383.jpg</span>
+        <span class="card-meta">Инференс: 30.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(14)">
+        <img src="batch_results/res_14_2026__08__28__828870b2-a0df-4c19-8002-e7f1c496b383.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 30.1 мс (~33 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #16: 2026__08__29__104ca961-d3b6-455f-995a-07d34de02391.jpg</span>
+        <span class="card-meta">Инференс: 35.0 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(15)">
+        <img src="batch_results/res_15_2026__08__29__104ca961-d3b6-455f-995a-07d34de02391.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 35.0 мс (~29 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #17: 2026__08__29__67587078-9b2c-455b-b80e-ebffdce3f81c.jpg</span>
+        <span class="card-meta">Инференс: 33.9 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(16)">
+        <img src="batch_results/res_16_2026__08__29__67587078-9b2c-455b-b80e-ebffdce3f81c.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 33.9 мс (~29 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #18: 2026__08__29__c1f3b3ba-3803-4870-83fb-bf24cbbbdf88.jpg</span>
+        <span class="card-meta">Инференс: 65.0 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(17)">
+        <img src="batch_results/res_17_2026__08__29__c1f3b3ba-3803-4870-83fb-bf24cbbbdf88.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 2</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 2</span>
+        <span class="badge badge-fps">⚡ 65.0 мс (~15 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #19: 2026__08__30__50e43f16-9a25-428e-aec9-dc45a5c7aaf3.jpg</span>
+        <span class="card-meta">Инференс: 66.8 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(18)">
+        <img src="batch_results/res_18_2026__08__30__50e43f16-9a25-428e-aec9-dc45a5c7aaf3.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 2</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 2</span>
+        <span class="badge badge-fps">⚡ 66.8 мс (~15 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #20: 2026__08__31__0a2a6605-e313-4b51-8c09-dcf3032933ee.jpg</span>
+        <span class="card-meta">Инференс: 69.3 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(19)">
+        <img src="batch_results/res_19_2026__08__31__0a2a6605-e313-4b51-8c09-dcf3032933ee.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 3</span>
+        <span class="badge badge-clean">⛑️ В каске: 2</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 69.3 мс (~14 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #21: 2026__08__31__d9d8caee-d905-4e3d-9246-382a0a58a107.jpg</span>
+        <span class="card-meta">Инференс: 74.0 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(20)">
+        <img src="batch_results/res_20_2026__08__31__d9d8caee-d905-4e3d-9246-382a0a58a107.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 4</span>
+        <span class="badge badge-clean">⛑️ В каске: 2</span>
+        <span class="badge badge-violation">❌ Без каски: 2</span>
+        <span class="badge badge-fps">⚡ 74.0 мс (~14 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #22: 2026__09__02__74af07e0-f954-42a6-8d7e-b64192983872.jpg</span>
+        <span class="card-meta">Инференс: 31.1 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(21)">
+        <img src="batch_results/res_21_2026__09__02__74af07e0-f954-42a6-8d7e-b64192983872.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 31.1 мс (~32 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #23: 2026__09__03__016b4354-6e11-4e44-87e9-aa421a7eab5d.jpg</span>
+        <span class="card-meta">Инференс: 71.9 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(22)">
+        <img src="batch_results/res_22_2026__09__03__016b4354-6e11-4e44-87e9-aa421a7eab5d.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 2</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 2</span>
+        <span class="badge badge-fps">⚡ 71.9 мс (~14 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #24: 2026__09__03__d952437f-1cd0-419b-b82b-5eb70d811cd8.jpg</span>
+        <span class="card-meta">Инференс: 48.5 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(23)">
+        <img src="batch_results/res_23_2026__09__03__d952437f-1cd0-419b-b82b-5eb70d811cd8.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 48.5 мс (~21 FPS)</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Кадр #25: 2026__09__04__69df9395-062a-4929-a9e5-6c74e09dfe7c.jpg</span>
+        <span class="card-meta">Инференс: 30.4 мс</span>
+      </div>
+      <div class="img-wrap" onclick="openModal(24)">
+        <img src="batch_results/res_24_2026__09__04__69df9395-062a-4929-a9e5-6c74e09dfe7c.jpg" alt="Processed frame" loading="lazy">
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-people">👤 Людей: 1</span>
+        <span class="badge badge-clean">⛑️ В каске: 0</span>
+        <span class="badge badge-violation">❌ Без каски: 1</span>
+        <span class="badge badge-fps">⚡ 30.4 мс (~33 FPS)</span>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-bar">
+      <div class="modal-controls">
+        <button class="modal-btn" onclick="prevModal()">← Назад</button>
+        <button class="modal-btn" onclick="nextModal()">Вперёд →</button>
+        <span id="modal-title" style="margin-left: 10px; font-weight: bold; color: #38bdf8;"></span>
+      </div>
+      <div class="modal-controls">
+        <button class="modal-btn" onclick="changeZoom(0.25)">🔍 +</button>
+        <button class="modal-btn" onclick="changeZoom(-0.25)">🔍 -</button>
+        <button class="modal-btn" onclick="resetZoom()">100%</button>
+        <span class="zoom-hint">Крутите колёсико мыши для зума, зажмите и тяните для панорамирования</span>
+        <button class="modal-btn modal-close" onclick="closeModal()">✕ Закрыть (Esc)</button>
+      </div>
+    </div>
+    <div class="viewport" id="viewport">
+      <img class="modal-img" id="modal-img" src="" alt="Zoomed frame">
+    </div>
+  </div>
+
+<script>
+const items = [{"idx": 0, "filename": "2026__08__10__0eed82ab-c5ba-4a9e-a9b8-e78adf6d73da.jpg", "img_src": "batch_results/res_00_2026__08__10__0eed82ab-c5ba-4a9e-a9b8-e78adf6d73da.jpg", "dt_ms": 3172.1500999992713, "people_count": 1, "people": [{"track_id": 1, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.7179204821586609, "bbox": [838, 267, 901, 425]}]}, {"idx": 1, "filename": "2026__08__20__05eb40f6-1bc8-4e68-b805-bc2efe35df3e.jpg", "img_src": "batch_results/res_01_2026__08__20__05eb40f6-1bc8-4e68-b805-bc2efe35df3e.jpg", "dt_ms": 11.530300020240247, "people_count": 1, "people": [{"track_id": 2, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8513875007629395, "bbox": [1333, 420, 1389, 595]}]}, {"idx": 2, "filename": "2026__08__20__aac4a886-dad4-4afb-937d-934160461215.jpg", "img_src": "batch_results/res_02_2026__08__20__aac4a886-dad4-4afb-937d-934160461215.jpg", "dt_ms": 10.960199986584485, "people_count": 0, "people": []}, {"idx": 3, "filename": "2026__08__21__5473863a-f3c7-4452-8895-5a021f4f305f.jpg", "img_src": "batch_results/res_03_2026__08__21__5473863a-f3c7-4452-8895-5a021f4f305f.jpg", "dt_ms": 10.099100007209927, "people_count": 1, "people": [{"track_id": 4, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.9251731634140015, "bbox": [1240, 746, 1426, 1077]}]}, {"idx": 4, "filename": "2026__08__21__d1310b5c-10f1-412d-96e0-3e5014f1eed6.jpg", "img_src": "batch_results/res_04_2026__08__21__d1310b5c-10f1-412d-96e0-3e5014f1eed6.jpg", "dt_ms": 11.112500011222437, "people_count": 1, "people": [{"track_id": 5, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8274502754211426, "bbox": [1331, 619, 1397, 851]}]}, {"idx": 5, "filename": "2026__08__22__cafb3704-f64f-4bf3-90e6-78974ca480a3.jpg", "img_src": "batch_results/res_05_2026__08__22__cafb3704-f64f-4bf3-90e6-78974ca480a3.jpg", "dt_ms": 10.61730002402328, "people_count": 1, "people": [{"track_id": 6, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8151766061782837, "bbox": [1467, 817, 1579, 1015]}]}, {"idx": 6, "filename": "2026__08__23__96135095-ec68-42d7-b964-44be43538d4f.jpg", "img_src": "batch_results/res_06_2026__08__23__96135095-ec68-42d7-b964-44be43538d4f.jpg", "dt_ms": 9.675600012997165, "people_count": 0, "people": []}, {"idx": 7, "filename": "2026__08__24__3e274b23-387a-4405-a81d-0df0877df8df.jpg", "img_src": "batch_results/res_07_2026__08__24__3e274b23-387a-4405-a81d-0df0877df8df.jpg", "dt_ms": 11.222400004044175, "people_count": 0, "people": []}, {"idx": 8, "filename": "2026__08__24__ddd95ba8-4653-4297-adfc-de6888999d98.jpg", "img_src": "batch_results/res_08_2026__08__24__ddd95ba8-4653-4297-adfc-de6888999d98.jpg", "dt_ms": 11.170099984155968, "people_count": 0, "people": []}, {"idx": 9, "filename": "2026__08__25__865e1550-78fe-41f0-8169-5026fc0ed4fa.jpg", "img_src": "batch_results/res_09_2026__08__25__865e1550-78fe-41f0-8169-5026fc0ed4fa.jpg", "dt_ms": 10.207700019236654, "people_count": 0, "people": []}, {"idx": 10, "filename": "2026__08__26__2e19a330-abff-42c9-9229-4433f14a2780.jpg", "img_src": "batch_results/res_10_2026__08__26__2e19a330-abff-42c9-9229-4433f14a2780.jpg", "dt_ms": 9.908000007271767, "people_count": 0, "people": []}, {"idx": 11, "filename": "2026__08__26__b3a750d2-136e-41a9-a4aa-4923cbd0dd1f.jpg", "img_src": "batch_results/res_11_2026__08__26__b3a750d2-136e-41a9-a4aa-4923cbd0dd1f.jpg", "dt_ms": 10.26149999233894, "people_count": 1, "people": [{"track_id": 12, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8566411733627319, "bbox": [1296, 377, 1344, 526]}]}, {"idx": 12, "filename": "2026__08__27__3d15c2af-2e5f-4ff8-a76d-866ceb6069ff.jpg", "img_src": "batch_results/res_12_2026__08__27__3d15c2af-2e5f-4ff8-a76d-866ceb6069ff.jpg", "dt_ms": 10.211399989202619, "people_count": 0, "people": []}, {"idx": 13, "filename": "2026__08__27__e88f8ab3-f1d7-45b8-a344-ce11cb7f07ef.jpg", "img_src": "batch_results/res_13_2026__08__27__e88f8ab3-f1d7-45b8-a344-ce11cb7f07ef.jpg", "dt_ms": 10.91640000231564, "people_count": 1, "people": [{"track_id": 14, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.897200345993042, "bbox": [1425, 447, 1517, 647]}]}, {"idx": 14, "filename": "2026__08__28__828870b2-a0df-4c19-8002-e7f1c496b383.jpg", "img_src": "batch_results/res_14_2026__08__28__828870b2-a0df-4c19-8002-e7f1c496b383.jpg", "dt_ms": 11.276799981715158, "people_count": 1, "people": [{"track_id": 15, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.6730714440345764, "bbox": [1353, 513, 1404, 688]}]}, {"idx": 15, "filename": "2026__08__29__104ca961-d3b6-455f-995a-07d34de02391.jpg", "img_src": "batch_results/res_15_2026__08__29__104ca961-d3b6-455f-995a-07d34de02391.jpg", "dt_ms": 10.601899994071573, "people_count": 1, "people": [{"track_id": 16, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.9045271277427673, "bbox": [1061, 741, 1182, 1031]}]}, {"idx": 16, "filename": "2026__08__29__67587078-9b2c-455b-b80e-ebffdce3f81c.jpg", "img_src": "batch_results/res_16_2026__08__29__67587078-9b2c-455b-b80e-ebffdce3f81c.jpg", "dt_ms": 10.06170001346618, "people_count": 0, "people": []}, {"idx": 17, "filename": "2026__08__29__c1f3b3ba-3803-4870-83fb-bf24cbbbdf88.jpg", "img_src": "batch_results/res_17_2026__08__29__c1f3b3ba-3803-4870-83fb-bf24cbbbdf88.jpg", "dt_ms": 10.74019999941811, "people_count": 1, "people": [{"track_id": 18, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8773638010025024, "bbox": [1049, 736, 1178, 1030]}]}, {"idx": 18, "filename": "2026__08__30__50e43f16-9a25-428e-aec9-dc45a5c7aaf3.jpg", "img_src": "batch_results/res_18_2026__08__30__50e43f16-9a25-428e-aec9-dc45a5c7aaf3.jpg", "dt_ms": 10.530100000323728, "people_count": 1, "people": [{"track_id": 19, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.6977735161781311, "bbox": [1420, 707, 1532, 939]}]}, {"idx": 19, "filename": "2026__08__31__0a2a6605-e313-4b51-8c09-dcf3032933ee.jpg", "img_src": "batch_results/res_19_2026__08__31__0a2a6605-e313-4b51-8c09-dcf3032933ee.jpg", "dt_ms": 10.643300018273294, "people_count": 3, "people": [{"track_id": 20, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.5450676679611206, "bbox": [1388, 861, 1493, 1024]}, {"track_id": 20, "hardhat": true, "cls_name": "hardhat", "conf": 0.4249497354030609, "bbox": [808, 522, 943, 735]}, {"track_id": 20, "hardhat": true, "cls_name": "hardhat", "conf": 0.3829227685928345, "bbox": [902, 424, 1024, 719]}]}, {"idx": 20, "filename": "2026__08__31__d9d8caee-d905-4e3d-9246-382a0a58a107.jpg", "img_src": "batch_results/res_20_2026__08__31__d9d8caee-d905-4e3d-9246-382a0a58a107.jpg", "dt_ms": 10.42010000674054, "people_count": 4, "people": [{"track_id": 21, "hardhat": true, "cls_name": "hardhat", "conf": 0.7931579351425171, "bbox": [1073, 507, 1128, 710]}, {"track_id": 21, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.7802245616912842, "bbox": [1355, 376, 1392, 516]}, {"track_id": 21, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.6595920920372009, "bbox": [945, 514, 1031, 731]}, {"track_id": 21, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.3635154664516449, "bbox": [1082, 503, 1107, 533]}]}, {"idx": 21, "filename": "2026__09__02__74af07e0-f954-42a6-8d7e-b64192983872.jpg", "img_src": "batch_results/res_21_2026__09__02__74af07e0-f954-42a6-8d7e-b64192983872.jpg", "dt_ms": 10.804099991219118, "people_count": 1, "people": [{"track_id": 22, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.32177573442459106, "bbox": [489, 292, 578, 453]}]}, {"idx": 22, "filename": "2026__09__03__016b4354-6e11-4e44-87e9-aa421a7eab5d.jpg", "img_src": "batch_results/res_22_2026__09__03__016b4354-6e11-4e44-87e9-aa421a7eab5d.jpg", "dt_ms": 10.871100006625056, "people_count": 2, "people": [{"track_id": 23, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.5841106176376343, "bbox": [1321, 742, 1418, 1018]}, {"track_id": 23, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.40073537826538086, "bbox": [1353, 772, 1416, 883]}]}, {"idx": 23, "filename": "2026__09__03__d952437f-1cd0-419b-b82b-5eb70d811cd8.jpg", "img_src": "batch_results/res_23_2026__09__03__d952437f-1cd0-419b-b82b-5eb70d811cd8.jpg", "dt_ms": 10.860299982596189, "people_count": 1, "people": [{"track_id": 24, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.3197571337223053, "bbox": [1406, 573, 1470, 808]}]}, {"idx": 24, "filename": "2026__09__04__69df9395-062a-4929-a9e5-6c74e09dfe7c.jpg", "img_src": "batch_results/res_24_2026__09__04__69df9395-062a-4929-a9e5-6c74e09dfe7c.jpg", "dt_ms": 10.640399996191263, "people_count": 1, "people": [{"track_id": 25, "hardhat": false, "cls_name": "no_hardhat", "conf": 0.8972838521003723, "bbox": [1263, 607, 1371, 835]}]}];
+let currentIndex = 0;
+let scale = 1;
+let posX = 0, posY = 0;
+let isDragging = false;
+let startX = 0, startY = 0;
+
+const viewport = document.getElementById('viewport');
+const modalImg = document.getElementById('modal-img');
+
+function updateTransform() {
+  modalImg.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
+
+function resetZoom() {
+  scale = 1;
+  posX = 0;
+  posY = 0;
+  updateTransform();
+}
+
+function changeZoom(delta) {
+  scale = Math.max(0.5, Math.min(5, scale + delta));
+  updateTransform();
+}
+
+viewport.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 0.2 : -0.2;
+  changeZoom(delta);
+});
+
+viewport.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startX = e.clientX - posX;
+  startY = e.clientY - posY;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  posX = e.clientX - startX;
+  posY = e.clientY - startY;
+  updateTransform();
+});
+
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+
+function openModal(idx) {
+  currentIndex = idx;
+  const modal = document.getElementById('modal');
+  const title = document.getElementById('modal-title');
+  modalImg.src = items[idx].img_src;
+  title.innerText = `Кадр #${idx + 1} / ${items.length}: ${items[idx].filename}`;
+  resetZoom();
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function prevModal() {
+  if (currentIndex > 0) openModal(currentIndex - 1);
+}
+
+function nextModal() {
+  if (currentIndex < items.length - 1) openModal(currentIndex + 1);
+}
+
+window.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('modal');
+  if (!modal.classList.contains('active')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowLeft') prevModal();
+  if (e.key === 'ArrowRight') nextModal();
+});
+</script>
+</body>
+</html>

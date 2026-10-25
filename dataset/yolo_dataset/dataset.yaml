@@ -1,0 +1,7 @@
+path: D:/Projects/Vodokanal_CV/dataset/yolo_dataset
+train: images/train
+val: images/val
+
+names:
+  0: no_hardhat
+  1: hardhat

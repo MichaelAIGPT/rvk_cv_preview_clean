@@ -1,0 +1,23 @@
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+venv/
+ENV/
+
+# System logs & local caches
+backend/logs/*.log
+logs/*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Active training runs & large checkpoints
+backend/data/training_runs/active_run_*
+runs/
+*.tar.xz
+*.zip
