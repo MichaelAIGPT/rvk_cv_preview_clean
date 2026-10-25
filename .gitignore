@@ -12,6 +12,8 @@ ENV/
 backend/logs/*.log
 logs/*.log
 *.tmp
+debug_*.*
+**/debug_*.*
 .DS_Store
 Thumbs.db
 desktop.ini
