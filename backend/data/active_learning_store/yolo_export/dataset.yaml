@@ -1,7 +1,0 @@
-path: D:/Projects/Vodokanal_CV/backend/data/active_learning_store/yolo_export
-train: images
-val: images
-
-names:
-  0: hardhat
-  1: no_hardhat
